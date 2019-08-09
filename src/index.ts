@@ -27,8 +27,28 @@ createConnection().then(async (conn) => {
         });
     });
 
-    app.listen(3000);
+    app.delete("/api/users/:id",async (req: Request, res: Response) => {
+        const id = req.params.id;
+        const result = await User.delete(id);
 
-    console.log("Server running in http://localhost:3000");
+        res.json({
+            affected: result.affected,
+            raw: result.raw
+        });
+    });
+
+    app.put("/api/users", async (req: Request, res: Response) => {
+        const user = await User.findOne(req.body.id);
+        user.firstName = req.body.firstName;
+        user.lastName = req.body.lastName;
+        user.age = req.body.age;
+        user.save();
+
+        res.json(user);
+    });
+
+    app.listen(8000);
+
+    console.log("Server running in http://localhost:8000");
 
 }).catch(err => console.error(err));
