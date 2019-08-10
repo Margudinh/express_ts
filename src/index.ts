@@ -69,3 +69,11 @@ createConnection().then(async (conn) => {
     });
 
 }).catch(err => console.error(err));
+
+process.on('SIGINT', function() {
+    console.log( "\nI've seen things people wouldn't believe");
+    console.log( "\nAttack ships on fire on the shoulder of orion");
+    console.log("\nAll those moments will be lost in time like tears in the rain");
+    console.log("\nTime to die...");
+    process.exit(1);
+});

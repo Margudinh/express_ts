@@ -24,6 +24,6 @@
    },
    "scripts": {
       "start": "ts-node --project tsconfig.server.json ./src/index.ts",
-      "start:watch": "nodemon"
+      "dev": "nodemon"
    }
 }
