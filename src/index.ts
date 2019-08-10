@@ -1,54 +1,71 @@
-import "reflect-metadata"
-import { createConnection, AdvancedConsoleLogger } from "typeorm";
-import * as express from "express";
-import * as bodyParser from "body-parser";
-import { Request, Response } from "express";
-import { User } from "./entity/User";
+import 'reflect-metadata';
+import { createConnection } from 'typeorm';
+import express from 'express';
+import * as bodyParser from 'body-parser';
+import { Request, Response } from 'express';
+import { User } from './entity/User';
+import next from 'next';
 
+
+
+const dev = process.env.NODE_ENV !== 'production';
+const port = process.env.PORT || 8000;
+const app =  next({ dev });
+
+const handle = app.getRequestHandler();
 
 createConnection().then(async (conn) => {
-    const app = express();
-    app.use(bodyParser.json());
 
-    app.get("/api/users", async (req: Request, res: Response) => {
-        const users =  await User.find();
-        res.json(users);
-    });
+    app.prepare().then(()=>{
 
-    app.post("/api/users", async (req: Request, res: Response) => {
-        const user = new User();
-        user.firstName = req.body.firstName;
-        user.age = req.body.age;
-        user.lastName = req.body.lastName;
-        await user.save();
+        const server = express();
+        server.use(bodyParser.json());
 
-        res.json({
-            "newUser" : user.id
+        server.get("/api/users", async (req: Request, res: Response) => {
+            const users =  await User.find();
+            res.json(users);
         });
-    });
 
-    app.delete("/api/users/:id",async (req: Request, res: Response) => {
-        const id = req.params.id;
-        const result = await User.delete(id);
+        server.post("/api/users", async (req: Request, res: Response) => {
+            const user = new User();
+            user.firstName = req.body.firstName;
+            user.age = req.body.age;
+            user.lastName = req.body.lastName;
+            await user.save();
 
-        res.json({
-            affected: result.affected,
-            raw: result.raw
+            res.json({
+                "newUser" : user.id
+            });
         });
+
+        server.delete("/api/users/:id",async (req: Request, res: Response) => {
+            const id = req.params.id;
+            const result = await User.delete(id);
+
+            res.json({
+                affected: result.affected,
+                raw: result.raw
+            });
+        });
+
+        server.put("/api/users", async (req: Request, res: Response) => {
+            const user = await User.findOne(req.body.id);
+            user.firstName = req.body.firstName;
+            user.lastName = req.body.lastName;
+            user.age = req.body.age;
+            user.save();
+
+            res.json(user);
+        });
+
+        server.use("*",(req: Request, res: Response)=> {
+            handle(req , res);
+        });
+
+        server.listen(8000);
+
+        console.log("Server running in http://localhost:8000");
+
     });
-
-    app.put("/api/users", async (req: Request, res: Response) => {
-        const user = await User.findOne(req.body.id);
-        user.firstName = req.body.firstName;
-        user.lastName = req.body.lastName;
-        user.age = req.body.age;
-        user.save();
-
-        res.json(user);
-    });
-
-    app.listen(8000);
-
-    console.log("Server running in http://localhost:8000");
 
 }).catch(err => console.error(err));
