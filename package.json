@@ -20,7 +20,7 @@
       "react": "^16.9.0",
       "react-dom": "^16.9.0",
       "reflect-metadata": "^0.1.10",
-      "typeorm": "0.2.18"
+      "typeorm": "0.2.25"
    },
    "scripts": {
       "start": "ts-node --project tsconfig.server.json ./src/index.ts",
